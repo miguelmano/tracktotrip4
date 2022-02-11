@@ -66,7 +66,7 @@ def process_folder(folder, alias={}, skip=[]):
 
 def main(dataset_folder, output_folder):
     features, labels = process_folder(userexpand(dataset_folder))
-    print 'Saving features and labels'
+    print('Saving features and labels')
     pickle.dump(features, open(join(userexpand(output_folder), 'geolife.histogram'), 'w'))
     pickle.dump(labels, open(join(userexpand(output_folder), 'geolife.histogram_labels'), 'w'))
 

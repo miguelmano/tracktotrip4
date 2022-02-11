@@ -23,7 +23,7 @@ trk.simplify(None, None)
 for segment in trk.segments:
     plt.plot([p.lon for p in segment.points], [p.lat for p in segment.points], '--')
 result = sum([len(s.points) for s in trk.segments])
-print("From %d to %d points" % (n_points, result))
-print("Compression: %f" % (n_points/float(result)))
+print(("From %d to %d points" % (n_points, result)))
+print(("Compression: %f" % (n_points/float(result))))
 
 plt.show()

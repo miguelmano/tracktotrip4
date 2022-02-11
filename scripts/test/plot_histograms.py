@@ -52,19 +52,19 @@ def plot(cumulative):
             histo_labels[label] = [n_histogram]
 
     fig = plt.figure(figsize=(10, 40))
-    n_splots = len(histo_labels.keys())
+    n_splots = len(list(histo_labels.keys()))
 
     i = 1
-    for label, histogram in histo_labels.iteritems():
+    for label, histogram in histo_labels.items():
         ax = fig.add_subplot(n_splots, 1, i)
         i = i + 1
         hst = average(histogram)
         # plt.plot(range(len(hst)), hst, label=label)
         # ax.hist(range(len(hst)), len(hst), weights=hst, label=label)
-        ax.hist(range(len(hst)), len(hst), weights=hst, cumulative=cumulative, edgecolor='none', range=(0, 400))
+        ax.hist(list(range(len(hst))), len(hst), weights=hst, cumulative=cumulative, edgecolor='none', range=(0, 400))
         ax.set_ylim([0, 1])
         ax.set_xlim([0, 400])
-        print(label, cum_prob(hst, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]))
+        print((label, cum_prob(hst, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])))
         ax.set_title('%s for %s' % (ttl, label.capitalize()))
     # plt.legend()
     plt.tight_layout()

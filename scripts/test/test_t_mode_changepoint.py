@@ -55,7 +55,7 @@ colors = 'rgby'
 def plot(ax, data, changepoints):
     index = 0
     for i, seg_data in enumerate(data):
-        ax.plot(range(index, len(seg_data) + index), seg_data, '-')
+        ax.plot(list(range(index, len(seg_data) + index)), seg_data, '-')
         for changepoint in changepoints[i]:
             ax.axvline(changepoint + index, color='k', linestyle='--')
         index = index + len(seg_data)
