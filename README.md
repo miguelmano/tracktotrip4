@@ -54,7 +54,7 @@ A track is composed by ` Segment `s, and each segment by ` Point `s.
 
 It can be saved to a GPX file:
 
-````python
+```python
 with open('file.gpx', 'w') as f:
   f.write(track.to_gpx())
 ```
