@@ -36,7 +36,7 @@ The starting points are the [Track](../master/tracktotrip/track.py), [Segment](.
 
 Can be loaded from a GPX file:
 
-````python
+```python
 from tracktotrip import Track, Segment, Point
 
 track = Track.from_gpx(open('file_to_track.gpx', 'r'))
