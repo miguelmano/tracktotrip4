@@ -6,6 +6,7 @@ import sys
 import traceback
 
 import numpy as np
+from rtreelib import Rect
 
 from .point import Point
 from .utils import pairwise
@@ -86,6 +87,20 @@ class Segment(object):
             max_lon = max(max_lon, point.lon)
 
         return (min_lat - thr, min_lon - thr, max_lat + thr, max_lon + thr)
+
+    def rect_bounds(self, thr=0, lower_index=0, upper_index=-1):
+        """ Computes the bounds of the segment, or part of it
+
+        Args:
+            lower_index (int, optional): Start index. Defaults to 0
+            upper_index (int, optional): End index. Defaults to 0
+        Returns:
+            :obj:`Rect`: Bounds of the (sub)segment in the rtreelib Rect format, such that
+                Rect(min_lat, min_lon, max_lat, max_lon)
+        """
+        bounds = self.bounds(thr, lower_index, upper_index)
+        return Rect(bounds[0], bounds[1], bounds[2], bounds[3])
+
 
     def remove_noise(self):
         """In-place removal of noise points

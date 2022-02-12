@@ -21,7 +21,7 @@ class Classifier(object):
         if classifier:
             self.clf = classifier
         else:
-            self.clf = SGDClassifier(loss="log", penalty="l2", shuffle=True, n_iter=2500)
+            self.clf = SGDClassifier(loss="log", penalty="l2", shuffle=True, max_iter=2500)
         self.labels = preprocessing.LabelEncoder()
         self.feature_length = -1
 

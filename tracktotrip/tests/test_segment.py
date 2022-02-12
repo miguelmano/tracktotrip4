@@ -8,8 +8,8 @@ def loadFile(name):
 
 class TestSegment(unittest.TestCase):
     def test_creation(self):
-        s1 = Segment()
-        s2 = Segment([Point(None, 0, 0, None)])
+        s1 = Segment([])
+        s2 = Segment([Point(0, 0, None)])
 
         self.assertEqual(len(s1.points), 0)
         self.assertEqual(len(s1.transportation_modes), 0)
@@ -25,9 +25,9 @@ class TestSegment(unittest.TestCase):
         time = datetime.now()
         dt = timedelta(1000)
 
-        s = Segment([Point(None, 0, 0, time), Point(None, 0, 1, time + dt), Point(None, 0, 2, time + dt)])
+        s = Segment([Point(0, 0, time), Point(0, 1, time + dt), Point(0, 2, time + dt)])
 
-        json = s.toJSON()
+        json = s.to_json()
         self.assertTrue('points' in json)
         self.assertTrue('transportationModes' in json)
         self.assertTrue('locationFrom' in json)

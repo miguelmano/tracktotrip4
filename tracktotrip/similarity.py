@@ -3,7 +3,7 @@ Similarity functions
 """
 import math
 import numpy as np
-from rtree import index
+from rtreelib import RTree, Rect
 
 #pylint: disable=invalid-name
 
@@ -202,7 +202,7 @@ def bounding_box_from(points, i, i1, thr):
         i (int): Line segment start, index in points array
         i1 (int): Line segment end, index in points array
     Returns:
-        (float, float, float, float): with bounding box min x, min y, max x and max y
+        Rect(float, float, float, float): with bounding box min x, min y, max x and max y
     """
     pi = points[i]
     pi1 = points[i1]
@@ -212,7 +212,7 @@ def bounding_box_from(points, i, i1, thr):
     max_lat = max(pi.lat, pi1.lat)
     max_lon = max(pi.lon, pi1.lon)
 
-    return min_lat-thr, min_lon-thr, max_lat+thr, max_lon+thr
+    return Rect(min_lat-thr, min_lon-thr, max_lat+thr, max_lon+thr)
 
 def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD):
     """Computes the similarity between two segments
@@ -226,11 +226,9 @@ def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD):
     l_a = len(A.points)
     l_b = len(B.points)
 
-    idx = index.Index()
-    dex = 0
+    idx = RTree()
     for i in range(l_a-1):
-        idx.insert(dex, bounding_box_from(A.points, i, i+1, T), obj=[A.points[i], A.points[i+1]])
-        dex = dex + 1
+        idx.insert([A.points[i], A.points[i+1]], bounding_box_from(A.points, i, i+1, T))
 
     prox_acc = []
 
@@ -238,14 +236,14 @@ def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD):
         ti = B.points[i].gen2arr()
         ti1 = B.points[i+1].gen2arr()
         bb = bounding_box_from(B.points, i, i+1, T)
-        intersects = idx.intersection(bb, objects=True)
+        intersects = idx.query(bb)
         n_prox = []
         i_prox = 0
         a = 0
         for x in intersects:
             a = a + 1
-            pi = x.object[0].gen2arr()
-            pi1 = x.object[1].gen2arr()
+            pi = x.data[0].gen2arr()
+            pi1 = x.data[1].gen2arr()
             prox = line_similarity(ti, ti1, pi, pi1, T)
             i_prox = i_prox + prox
             n_prox.append(prox)

@@ -11,14 +11,14 @@ class TestLearnTrip(unittest.TestCase):
         dt = timedelta(1000)
 
         def pt_arr_to_track(pts):
-            seg = Segment(map(lambda p: Point(None, p[0], p[1], time + dt), pts))
+            seg = Segment(map(lambda p: Point(p[0], p[1], time + dt), pts))
             return Track(name="TripA", segments=[seg])
 
         self.tripA = pt_arr_to_track(Aps)
-        self.tripA.toTrip(name="A")
+        self.tripA.to_trip(name="A")
 
         self.tripB = pt_arr_to_track(Bps)
-        self.tripB.toTrip(name="B")
+        self.tripB.to_trip(name="B")
 
     def fail(self, track):
         self.assertTrue(False)

@@ -7,7 +7,7 @@ from datetime import timedelta
 
 import gpxpy
 import numpy as np
-from rtree import index
+from rtreelib import RTree
 
 from .segment import Segment
 from .similarity import segment_similarity
@@ -326,20 +326,20 @@ class Track(object):
             Two-tuple with global similarity between tracks
             and an array the similarity between segments
         """
-        idx = index.Index()
+        idx = RTree()
         i = 0
         for i, segment in enumerate(self.segments):
-            idx.insert(i, segment.bounds(), obj=segment)
+            idx.insert(segment, segment.rect_bounds())
 
         final_siml = []
         final_diff = []
         for i, segment in enumerate(track.segments):
-            query = idx.intersection(segment.bounds(), objects=True)
+            query = idx.query(segment.rect_bounds())
 
             res_siml = []
             res_diff = []
             for result in query:
-                siml, diff = segment_similarity(segment, result.object)
+                siml, diff = segment_similarity(segment, result.data)
                 res_siml.append(siml)
                 res_diff.append((result.id, i, diff))
 
