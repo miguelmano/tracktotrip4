@@ -24,7 +24,7 @@ or
 easy_install install tracktotrip
 ```
 
-**Python 2.x** is required, mainly because of the [ikalman](https://github.com/ruipgil/ikalman) package.
+**Python 3.x** is required.
 
 You may want to install the dependencies with *easyinstall* first, to avoid building libraries such as *numpy*.
 
@@ -39,7 +39,7 @@ Can be loaded from a GPX file:
 ```python
 from tracktotrip import Track, Segment, Point
 
-track = Track.from_gpx(open('file_to_track.gpx', 'r'))
+track = Track.from_gpx('file_to_track.gpx')
 ```
 
 A track can be transformed into a trip with the method ` to_trip `. Transforming a track into a trip executes the following steps:
