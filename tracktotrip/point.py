@@ -5,7 +5,7 @@ import math
 import datetime
 from .utils import isostr_to_datetime
 
-EPOCH = datetime.datetime.fromtimestamp(0, tz=datetime.timezone.utc)
+EPOCH = datetime.datetime.fromtimestamp(0)
 
 class Point(object):
     """ Spaciotemporal point representation
@@ -36,7 +36,10 @@ class Point(object):
         Returns:
             float: time since epoch, in seconds
         """
-        
+
+        # make naive
+        self.time = self.time.replace(tzinfo=None)
+
         return (self.time - EPOCH).total_seconds()
 
     def gen2arr(self):

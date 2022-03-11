@@ -39,7 +39,8 @@ class Track(object):
         """
         self.name = name
         self.meta = []
-        self.segments = sorted(segments, key=lambda s: s.points[0].time)
+        
+        self.segments = sorted(segments, key=lambda s: list(s.points)[0].time)
 
     def generate_name(self, name_format=DEFAULT_FILE_NAME_FORMAT):
         """ Generates a name for the track

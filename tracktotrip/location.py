@@ -216,7 +216,7 @@ def infer_location(
         queried_locations = location_query(point, max_distance)
         for (label, centroid, _) in queried_locations:
             locations.append({
-                'label': str(label, 'utf-8'),
+                'label': label,
                 'distance': centroid.distance(point),
                 # 'centroid': centroid,
                 'suggestion_type': 'KB'
