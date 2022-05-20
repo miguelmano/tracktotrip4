@@ -513,7 +513,7 @@ class Track(object):
         Return:
             :obj:`list` of :obj:`Track`
         """
-        gpx = gpxpy.parse(open(file_path, 'r'))
+        gpx = gpxpy.parse(open(file_path, mode='r', encoding="utf-8-sig"))
         file_name = basename(file_path)
 
         tracks = []

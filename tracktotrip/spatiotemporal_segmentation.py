@@ -1,6 +1,7 @@
 """
 Spatio-temporal segmentation of points
 """
+import math
 import numpy as np
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
@@ -86,12 +87,14 @@ def spatiotemporal_segmentation(points, eps, min_time):
     """
     # min time / sample rate
     dt_average = np.median([point.dt for point in points])
+    if (dt_average == 0):
+        dt_average == 1
     min_samples = min_time / dt_average
 
     data = [point.gen3arr() for point in points]
     data = StandardScaler().fit_transform(data)
     print('min_samples: %f' % min_samples)
-    db_cluster = DBSCAN(eps=eps, min_samples=min_samples).fit(data)
+    db_cluster = DBSCAN(eps=eps, min_samples=math.floor(min_samples)).fit(data)
     labels = db_cluster.labels_
 
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
