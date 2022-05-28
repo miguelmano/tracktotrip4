@@ -88,7 +88,7 @@ def spatiotemporal_segmentation(points, eps, min_time):
     # min time / sample rate
     dt_average = np.median([point.dt for point in points])
     if (dt_average == 0):
-        dt_average == 1
+        dt_average = 1
     min_samples = min_time / dt_average
 
     data = [point.gen3arr() for point in points]
