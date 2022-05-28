@@ -8,7 +8,7 @@ from .utils import pairwise
 
 MAX_VEL = 1000.0
 
-def cum_prob(histogram, steps):
+def cum_prob(histogram, steps, debug = False):
     steps = sorted(steps)
     step_i = 0
     prob = 0.0
@@ -25,13 +25,13 @@ def cum_prob(histogram, steps):
                 break
     return np.array(result) / MAX_VEL
 
-def normalize(histogram):
+def normalize(histogram, debug = False):
     total = float(sum(histogram))
     if total == 0:
         return [0]
     return [x / total for x in histogram]
 
-def build_histogram(points):
+def build_histogram(points, debug = False):
     max_bin = -1
     for point in points:
         max_bin = max(max_bin, point.vel)
@@ -49,12 +49,12 @@ def build_histogram(points):
 
     return histogram
 
-def extract_features_2(points):
-    hist = build_histogram(points)
-    norm = normalize(hist)
-    return cum_prob(norm, list([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]))
+def extract_features_2(points, debug = False):
+    hist = build_histogram(points, debug)
+    norm = normalize(hist, debug)
+    return cum_prob(norm, list([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]), debug)
 
-def learn_transportation_mode(track, clf):
+def learn_transportation_mode(track, clf, debug = False):
     """ Inserts transportation modes of a track into a classifier
 
     Args:
@@ -70,12 +70,12 @@ def learn_transportation_mode(track, clf):
         for tmode in tmodes:
             points_part = points[tmode['from']:tmode['to']]
             if len(points_part) > 0:
-                features.append(extract_features_2(points_part))
+                features.append(extract_features_2(points_part, debug))
                 labels.append(tmode['label'])
 
         clf.learn(features, labels)
 
-def extract_features(points, n_tops):
+def extract_features(points, n_tops, debug = False):
     """ Feature extractor
 
     Args:
@@ -113,7 +113,7 @@ def extract_features(points, n_tops):
 
     return result
 
-def speed_difference(points):
+def speed_difference(points, debug = False):
     """ Computes the speed difference between each adjacent point
 
     Args:
@@ -122,11 +122,11 @@ def speed_difference(points):
         :obj:`list` of int: Indexes of changepoints
     """
     data = [0]
-    for before, after in pairwise(points):
+    for before, after in pairwise(points, debug):
         data.append(before.vel - after.vel)
     return data
 
-def acc_difference(points):
+def acc_difference(points, debug = False):
     """ Computes the accelaration difference between each adjacent point
 
     Args:
@@ -135,11 +135,11 @@ def acc_difference(points):
         :obj:`list` of int: Indexes of changepoints
     """
     data = [0]
-    for before, after in pairwise(points):
+    for before, after in pairwise(points, debug):
         data.append(before.acc - after.acc)
     return data
 
-def detect_changepoints(points, min_time, data_processor=acc_difference):
+def detect_changepoints(points, min_time, data_processor=acc_difference, debug = False):
     """ Detects changepoints on points that have at least a specific duration
 
     Args:
@@ -150,12 +150,12 @@ def detect_changepoints(points, min_time, data_processor=acc_difference):
     Returns:
         :obj:`list` of int: Indexes of changepoints
     """
-    data = data_processor(points)
+    data = data_processor(points, debug)
     changepoints = pelt(normal_mean(data, np.std(data)), len(data))
     changepoints.append(len(points) - 1)
 
     result = []
-    for start, end in pairwise(changepoints):
+    for start, end in pairwise(changepoints, debug):
         time_diff = points[end].time_difference(points[start])
         if time_diff > min_time:
             result.append(start)
@@ -166,7 +166,7 @@ def detect_changepoints(points, min_time, data_processor=acc_difference):
     result.append(len(points) - 1)
     return sorted(list(set(result)))
 
-def group_modes(modes):
+def group_modes(modes, debug = False):
     """ Groups consecutive transportation modes with same label, into one
 
     Args:
@@ -190,9 +190,12 @@ def group_modes(modes):
     else:
         return modes
 
-def classify(clf, points, min_time, from_index = None, to_index = None):
-    features = extract_features_2(points)
-    print((len(points), features))
+def classify(clf, points, min_time, from_index = None, to_index = None, debug = False):
+    features = extract_features_2(points, debug)
+
+    if debug:
+        print((len(points), features))
+    
     if len(features) > 0:
         [probs] = clf.predict([features], verbose=True)
         top_label = sorted(list(probs.items()), key=lambda val: val[1])
@@ -205,7 +208,7 @@ def classify(clf, points, min_time, from_index = None, to_index = None):
     return None
 
 
-def speed_clustering(clf, points, min_time):
+def speed_clustering(clf, points, min_time, debug = False):
     """ Transportation mode infering, based on changepoint segmentation
 
     Args:
@@ -216,7 +219,7 @@ def speed_clustering(clf, points, min_time):
         :obj:`list` of :obj:`dict`
     """
     # get changepoint indexes
-    changepoints = detect_changepoints(points, min_time)
+    changepoints = detect_changepoints(points, min_time, debug)
 
     # info for each changepoint
     cp_info = []
@@ -224,8 +227,8 @@ def speed_clustering(clf, points, min_time):
     for i in range(0, len(changepoints) - 1):
         from_index = changepoints[i]
         to_index = changepoints[i+1]
-        info = classify(clf, points[from_index:to_index], min_time, from_index, to_index)
+        info = classify(clf, points[from_index:to_index], min_time, from_index, to_index, debug)
         if info:
             cp_info.append(info)
 
-    return group_modes(cp_info)
+    return group_modes(cp_info, debug)

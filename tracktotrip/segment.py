@@ -18,7 +18,7 @@ from .compression import spt, drp
 from .transportation_mode import speed_clustering
 from .spatiotemporal_segmentation import spatiotemporal_segmentation
 
-def remove_liers(points):
+def remove_liers(points, debug = False):
     """ Removes obvious noise points
 
     Checks time consistency, removing points that appear out of order
@@ -57,11 +57,12 @@ class Segment(object):
             the end of the segment
     """
 
-    def __init__(self, points):
+    def __init__(self, points, debug = False):
         self.points = points
         self.transportation_modes = []
         self.location_from = None
         self.location_to = None
+        self.debug = debug
 
     def bounds(self, thr=0, lower_index=0, upper_index=-1):
         """ Computes the bounds of the segment, or part of it
@@ -110,7 +111,7 @@ class Segment(object):
         Returns:
             :obj:`Segment`
         """
-        self.points = remove_liers(self.points)
+        self.points = remove_liers(self.points, self.debug)
         return self
 
     def smooth(self, noise, strategy=INVERSE_STRATEGY):
@@ -126,11 +127,11 @@ class Segment(object):
             :obj:`Segment`
         """
         if strategy is INVERSE_STRATEGY:
-            self.points = with_inverse(self.points, noise)
+            self.points = with_inverse(self.points, noise, self.debug)
         elif strategy is EXTRAPOLATE_STRATEGY:
-            self.points = with_extrapolation(self.points, noise, 30)
+            self.points = with_extrapolation(self.points, noise, 30, self.debug)
         elif strategy is NO_STRATEGY:
-            self.points = with_no_strategy(self.points, noise)
+            self.points = with_no_strategy(self.points, noise, self.debug)
         return self
 
     def segment(self, eps, min_time):
@@ -144,7 +145,7 @@ class Segment(object):
         Returns:
             :obj:`list` of :obj:`Point`
         """
-        return spatiotemporal_segmentation(self.points, eps, min_time)
+        return spatiotemporal_segmentation(self.points, eps, min_time, self.debug)
 
     def simplify(self, eps, max_dist_error, max_speed_error, topology_only=False):
         """ In-place segment simplification
@@ -172,7 +173,7 @@ class Segment(object):
         Returns:
             :obj:`Segment`: self
         """
-        for prev, point in pairwise(self.points):
+        for prev, point in pairwise(self.points, self.debug):
             point.compute_metrics(prev)
         return self
 
@@ -201,7 +202,8 @@ class Segment(object):
             google_key,
             foursquare_client_id,
             foursquare_client_secret,
-            limit
+            limit,
+            self.debug
         )
         self.location_to = infer_location(
             self.points[-1],
@@ -210,7 +212,8 @@ class Segment(object):
             google_key,
             foursquare_client_id,
             foursquare_client_secret,
-            limit
+            limit,
+            self.debug
         )
 
         return self
@@ -224,7 +227,7 @@ class Segment(object):
         Returns:
             :obj:`Segment`: self
         """
-        self.transportation_modes = speed_clustering(clf, self.points, min_time)
+        self.transportation_modes = speed_clustering(clf, self.points, min_time, self.debug)
         return self
 
     def merge_and_fit(self, segment):
@@ -236,7 +239,7 @@ class Segment(object):
         Returns:
             :obj:`Segment`: self
         """
-        self.points = sort_segment_points(self.points, segment.points)
+        self.points = sort_segment_points(self.points, segment.points, self.debug)
         return self
 
     def closest_point_to(self, point, thr=20.0):
@@ -257,7 +260,7 @@ class Segment(object):
             temp = closest_point(pointA.gen2arr(), pointB.gen2arr(), point_arr)
             return Point(temp[1], temp[0], None)
 
-        for (p_a, p_b) in pairwise(self.points):
+        for (p_a, p_b) in pairwise(self.points, self.debug):
             candidate = closest_in_line(p_a, p_b)
             if candidate.distance(point) <= thr:
                 if p_a.distance(point) <= thr:
@@ -317,7 +320,7 @@ class Segment(object):
         }
 
     @staticmethod
-    def from_gpx(gpx_segment):
+    def from_gpx(gpx_segment, debug = False):
         """ Creates a segment from a GPX format.
 
         No preprocessing is done.
@@ -329,11 +332,11 @@ class Segment(object):
         """
         points = []
         for point in gpx_segment.points:
-            points.append(Point.from_gpx(point))
-        return Segment(points)
+            points.append(Point.from_gpx(point, debug))
+        return Segment(points, debug)
 
     @staticmethod
-    def from_json(json):
+    def from_json(json, debug = False):
         """ Creates a segment from a JSON file.
 
         No preprocessing is done.
@@ -345,5 +348,5 @@ class Segment(object):
         """
         points = []
         for point in json['points']:
-            points.append(Point.from_json(point))
-        return Segment(points)
+            points.append(Point.from_json(point, debug))
+        return Segment(points, debug)

@@ -18,7 +18,7 @@ PRECISION_TABLE = {
     8: [1.1132 / 1000, 1.0247 / 1000, 787.1 / (1000 ** 2), 434.96 / (1000 ** 2)]
     }
 
-def estimate_meters_to_deg(meters, precision=PRECISION_PERSON):
+def estimate_meters_to_deg(meters, precision=PRECISION_PERSON, debug = False):
     """ Meters to degrees estimation
 
     See https://en.wikipedia.org/wiki/Decimal_degrees
@@ -33,7 +33,7 @@ def estimate_meters_to_deg(meters, precision=PRECISION_PERSON):
     dec = 1/float(10 ** precision)
     return meters / line[3] * dec
 
-def isostr_to_datetime(dt_str):
+def isostr_to_datetime(dt_str, debug = False):
     """ Converts iso formated text string into a datetime object
 
     Args:
@@ -45,9 +45,9 @@ def isostr_to_datetime(dt_str):
         return datetime.datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%SZ")
     else:
         dt_str = dt_str.split(".")
-        return isostr_to_datetime("%sZ" % dt_str[0])
+        return isostr_to_datetime("%sZ" % dt_str[0], debug)
 
-def pairwise(iterable):
+def pairwise(iterable, debug = False):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     now, nxt = tee(iterable)
     next(nxt, None)

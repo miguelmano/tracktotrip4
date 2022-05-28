@@ -10,7 +10,7 @@ NO_STRATEGY = 'no strategy'
 INVERSE_STRATEGY = 'inverse'
 EXTRAPOLATE_STRATEGY = 'extrapolate'
 
-def extrapolate_points(points, n_points):
+def extrapolate_points(points, n_points, debug = False):
     """ Extrapolate a number of points, based on the first ones
 
     Args:
@@ -44,7 +44,7 @@ def extrapolate_points(points, n_points):
 
     return gen_sample
 
-def with_extrapolation(points, noise, n_points):
+def with_extrapolation(points, noise, n_points, debug = False):
     """ Smooths a set of points, but it extrapolates some points at the beginning
 
     Args:
@@ -55,10 +55,10 @@ def with_extrapolation(points, noise, n_points):
         :obj:`list` of :obj:`Point`
     """
     n_points = 10
-    return kalman_filter(extrapolate_points(points, n_points) + points, noise)[n_points:]
+    return kalman_filter(extrapolate_points(points, n_points) + points, noise, debug)[n_points:]
     # return extrapolate_points(points, 5) + points
 
-def with_no_strategy(points, noise):
+def with_no_strategy(points, noise, debug = False):
     """ Smooths a set of points using just the kalman filter
 
     Args:
@@ -68,12 +68,12 @@ def with_no_strategy(points, noise):
     Returns:
         :obj:`list` of :obj:`Point`
     """
-    return kalman_filter(points, noise)
+    return kalman_filter(points, noise, debug)
 
-def point_mean(point1, point2):
+def point_mean(point1, point2, debug = False):
     return Point((point1.lat + point2.lat)/2.0, (point1.lon + point2.lon)/2.0, point1.time)
 
-def with_inverse(points, noise):
+def with_inverse(points, noise, debug = False):
     """ Smooths a set of points
 
     It smooths them twice, once in given order, another one in the reverse order.
@@ -93,10 +93,10 @@ def with_inverse(points, noise):
 
     points_part = copy.deepcopy(points)
     points_part = list(reversed(points_part))
-    part = kalman_filter(points_part, noise)
-    total = kalman_filter(points, noise)
+    part = kalman_filter(points_part, noise, debug)
+    total = kalman_filter(points, noise, debug)
 
     result = list(reversed(part))[:break_point] + total[break_point:]
-    result[break_point] = point_mean(part[break_point], total[break_point])
+    result[break_point] = point_mean(part[break_point], total[break_point], debug)
 
     return result

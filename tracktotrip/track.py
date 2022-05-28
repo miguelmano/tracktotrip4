@@ -26,7 +26,7 @@ class Track(object):
         preprocessed: Boolean, true if it has been preprocessed
     """
 
-    def __init__(self, name, segments):
+    def __init__(self, name, segments, debug = False):
         """ Constructor
 
         When constructing a track it's not guaranteed that the segments
@@ -39,6 +39,7 @@ class Track(object):
         """
         self.name = name
         self.meta = []
+        self.debug = debug
         
         self.segments = sorted(segments, key=lambda s: list(s.points)[0].time)
 
@@ -75,7 +76,9 @@ class Track(object):
         Returns:
             :obj:`Track`: self
         """
-        print(noise)
+        if self.debug:
+            print(noise)
+
         for segment in self.segments:
             segment.smooth(noise, strategy)
         return self
@@ -172,7 +175,9 @@ class Track(object):
         self.compute_metrics()
         self.remove_noise()
 
-        print((smooth, seg, simplify))
+        if self.debug:
+            print((smooth, seg, simplify))
+        
         if smooth:
             self.compute_metrics()
             self.smooth(smooth_strategy, smooth_noise)
@@ -340,7 +345,7 @@ class Track(object):
             res_siml = []
             res_diff = []
             for result in query:
-                siml, diff = segment_similarity(segment, result.data)
+                siml, diff = segment_similarity(segment, result.data, debug=self.debug)
                 res_siml.append(siml)
                 res_diff.append((result.id, i, diff))
 
@@ -503,7 +508,7 @@ class Track(object):
         return buff
 
     @staticmethod
-    def from_gpx(file_path):
+    def from_gpx(file_path, debug = False):
         """ Creates a Track from a GPX file.
 
         No preprocessing is done.
@@ -520,18 +525,18 @@ class Track(object):
         for i, track in enumerate(gpx.tracks):
             segments = []
             for segment in track.segments:
-                segments.append(Segment.from_gpx(segment))
+                segments.append(Segment.from_gpx(segment, debug))
 
             if len(gpx.tracks) > 1:
                 name = file_name + "_" + str(i)
             else:
                 name = file_name
-            tracks.append(Track(name, segments))
+            tracks.append(Track(name, segments, debug))
 
         return tracks
 
     @staticmethod
-    def from_json(json):
+    def from_json(json, debug = False):
         """Creates a Track from a JSON file.
 
         No preprocessing is done.
@@ -541,5 +546,5 @@ class Track(object):
         Return:
             A track instance
         """
-        segments = [Segment.from_json(s) for s in json['segments']]
+        segments = [Segment.from_json(s, debug) for s in json['segments']]
         return Track(json['name'], segments).compute_metrics()

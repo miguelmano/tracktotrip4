@@ -4,7 +4,7 @@ See https://github.com/open-city/ikalman
 """
 import ikalman
 
-def kalman_filter(points, noise):
+def kalman_filter(points, noise, debug = False):
     """ Smooths points with kalman filter
 
     See https://github.com/open-city/ikalman

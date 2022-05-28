@@ -7,7 +7,7 @@ from rtreelib import RTree, Rect
 
 #pylint: disable=invalid-name
 
-def dot(p1, p2):
+def dot(p1, p2, debug = False):
     """Dot product between two points
 
     Args:
@@ -18,7 +18,7 @@ def dot(p1, p2):
     """
     return p1[0] * p2[0] + p1[1] * p2[1]
 
-def normalize(p):
+def normalize(p, debug = False):
     """Normalizes a point/vector
 
     Args:
@@ -29,7 +29,7 @@ def normalize(p):
     l = math.sqrt(p[0]**2 + p[1]**2)
     return [0.0, 0.0] if l == 0 else [p[0]/l, p[1]/l]
 
-def angle(p1, p2):
+def angle(p1, p2, debug = False):
     """Angle between two points
 
     Args:
@@ -38,9 +38,9 @@ def angle(p1, p2):
     Returns:
         float
     """
-    return dot(p1, p2)
+    return dot(p1, p2, debug)
 
-def angle_similarity(l1, l2):
+def angle_similarity(l1, l2, debug = False):
     """Computes the similarity between two lines, based
     on their angles
 
@@ -50,9 +50,9 @@ def angle_similarity(l1, l2):
     Returns:
         float
     """
-    return angle(l1, l2)
+    return angle(l1, l2, debug)
 
-def line(p1, p2):
+def line(p1, p2, debug = False):
     """Creates a line from two points
 
     From http://stackoverflow.com/a/20679579
@@ -68,7 +68,7 @@ def line(p1, p2):
     C = (p1[0]*p2[1] - p2[0]*p1[1])
     return A, B, -C
 
-def intersection(L1, L2):
+def intersection(L1, L2, debug = False):
     """Intersects two line segments
 
     Args:
@@ -88,7 +88,7 @@ def intersection(L1, L2):
     else:
         return False
 
-def distance(a, b):
+def distance(a, b, debug = False):
     """Distance between two points
 
     Args:
@@ -99,7 +99,7 @@ def distance(a, b):
     """
     return math.sqrt((b[0]-a[0])**2 + (b[1]-a[1])**2)
 
-def distance_tt_point(a, b):
+def distance_tt_point(a, b, debug = False):
     """ Euclidean distance between two (tracktotrip) points
 
     Args:
@@ -110,7 +110,7 @@ def distance_tt_point(a, b):
     """
     return math.sqrt((b.lat-a.lat)**2 + (b.lon-a.lon)**2)
 
-def closest_point(a, b, p):
+def closest_point(a, b, p, debug = False):
     """Finds closest point in a line segment
 
     Args:
@@ -123,7 +123,7 @@ def closest_point(a, b, p):
     ap = [p[0]-a[0], p[1]-a[1]]
     ab = [b[0]-a[0], b[1]-a[1]]
     mag = float(ab[0]**2 + ab[1]**2)
-    proj = dot(ap, ab)
+    proj = dot(ap, ab, debug)
     if mag ==0 :
         dist = 0
     else:
@@ -135,7 +135,7 @@ def closest_point(a, b, p):
     else:
         return [a[0] + ab[0] * dist, a[1] + ab[1] * dist]
 
-def distance_to_line(a, b, p):
+def distance_to_line(a, b, p, debug = False):
     """Closest distance between a line segment and a point
 
     Args:
@@ -145,10 +145,10 @@ def distance_to_line(a, b, p):
     Returns:
         float
     """
-    return distance(closest_point(a, b, p), p)
+    return distance(closest_point(a, b, p, debug), p, debug)
 
 CLOSE_DISTANCE_THRESHOLD = 1.0
-def distance_similarity(a, b, p, T=CLOSE_DISTANCE_THRESHOLD):
+def distance_similarity(a, b, p, T=CLOSE_DISTANCE_THRESHOLD, debug = False):
     """Computes the distance similarity between a line segment
     and a point
 
@@ -159,12 +159,12 @@ def distance_similarity(a, b, p, T=CLOSE_DISTANCE_THRESHOLD):
     Returns:
         float: between 0 and 1. Where 1 is very similar and 0 is completely different
     """
-    d = distance_to_line(a, b, p)
+    d = distance_to_line(a, b, p, debug)
     r = (-1/float(T)) * abs(d) + 1
 
     return r if r > 0 else 0
 
-def line_distance_similarity(p1a, p1b, p2a, p2b, T=CLOSE_DISTANCE_THRESHOLD):
+def line_distance_similarity(p1a, p1b, p2a, p2b, T=CLOSE_DISTANCE_THRESHOLD, debug = False):
     """Line distance similarity between two line segments
 
     Args:
@@ -175,11 +175,11 @@ def line_distance_similarity(p1a, p1b, p2a, p2b, T=CLOSE_DISTANCE_THRESHOLD):
     Returns:
         float: between 0 and 1. Where 1 is very similar and 0 is completely different
     """
-    d1 = distance_similarity(p1a, p1b, p2a, T=T)
-    d2 = distance_similarity(p1a, p1b, p2b, T=T)
+    d1 = distance_similarity(p1a, p1b, p2a, T=T, debug=debug)
+    d2 = distance_similarity(p1a, p1b, p2b, T=T, debug=debug)
     return abs(d1 + d2) * 0.5
 
-def line_similarity(p1a, p1b, p2a, p2b, T=CLOSE_DISTANCE_THRESHOLD):
+def line_similarity(p1a, p1b, p2a, p2b, T=CLOSE_DISTANCE_THRESHOLD, debug = False):
     """Similarity between two lines
 
     Args:
@@ -190,11 +190,11 @@ def line_similarity(p1a, p1b, p2a, p2b, T=CLOSE_DISTANCE_THRESHOLD):
     Returns:
         float: between 0 and 1. Where 1 is very similar and 0 is completely different
     """
-    d = line_distance_similarity(p1a, p1b, p2a, p2b, T=T)
-    a = abs(angle_similarity(normalize(line(p1a, p1b)), normalize(line(p2a, p2b))))
+    d = line_distance_similarity(p1a, p1b, p2a, p2b, T=T, debug=debug)
+    a = abs(angle_similarity(normalize(line(p1a, p1b, debug), debug), normalize(line(p2a, p2b, debug), debug), debug))
     return d * a
 
-def bounding_box_from(points, i, i1, thr):
+def bounding_box_from(points, i, i1, thr, debug = False):
     """Creates bounding box for a line segment
 
     Args:
@@ -214,7 +214,7 @@ def bounding_box_from(points, i, i1, thr):
 
     return Rect(min_lat-thr, min_lon-thr, max_lat+thr, max_lon+thr)
 
-def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD):
+def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD, debug = False):
     """Computes the similarity between two segments
 
     Args:
@@ -228,14 +228,14 @@ def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD):
 
     idx = RTree()
     for i in range(l_a-1):
-        idx.insert([A.points[i], A.points[i+1]], bounding_box_from(A.points, i, i+1, T))
+        idx.insert([A.points[i], A.points[i+1]], bounding_box_from(A.points, i, i+1, T, debug))
 
     prox_acc = []
 
     for i in range(l_b-1):
         ti = B.points[i].gen2arr()
         ti1 = B.points[i+1].gen2arr()
-        bb = bounding_box_from(B.points, i, i+1, T)
+        bb = bounding_box_from(B.points, i, i+1, T, debug)
         intersects = idx.query(bb)
         n_prox = []
         i_prox = 0
@@ -244,7 +244,7 @@ def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD):
             a = a + 1
             pi = x.data[0].gen2arr()
             pi1 = x.data[1].gen2arr()
-            prox = line_similarity(ti, ti1, pi, pi1, T)
+            prox = line_similarity(ti, ti1, pi, pi1, T, debug)
             i_prox = i_prox + prox
             n_prox.append(prox)
 
@@ -256,7 +256,7 @@ def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD):
 
     return np.mean(prox_acc), prox_acc
 
-def sort_segment_points(Aps, Bps):
+def sort_segment_points(Aps, Bps, debug = False):
     """Takes two line segments and sorts all their points,
     so that they form a continuous path
 
@@ -270,11 +270,11 @@ def sort_segment_points(Aps, Bps):
     j = 0
     mid.append(Aps[0])
     for i in range(len(Aps)-1):
-        dist = distance_tt_point(Aps[i], Aps[i+1])
+        dist = distance_tt_point(Aps[i], Aps[i+1], debug)
         for m in range(j, len(Bps)):
-            distm = distance_tt_point(Aps[i], Bps[m])
+            distm = distance_tt_point(Aps[i], Bps[m], debug)
             if dist > distm:
-                direction = dot(normalize(line(Aps[i].gen2arr(), Aps[i+1].gen2arr())), normalize(Bps[m].gen2arr()))
+                direction = dot(normalize(line(Aps[i].gen2arr(), Aps[i+1].gen2arr(), debug), debug), normalize(Bps[m].gen2arr(), debug), debug)
                 if direction > 0:
                     j = m + 1
                     mid.append(Bps[m])

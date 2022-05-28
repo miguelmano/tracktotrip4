@@ -21,7 +21,7 @@ class Point(object):
         vel (float): velocity in km/h, relative to the previous point in the segment
             should be computed with compute_metrics method
     """
-    def __init__(self, lat, lon, time):
+    def __init__(self, lat, lon, time, debug = False):
         self.lon = lon
         self.lat = lat
         self.time = time
@@ -29,6 +29,7 @@ class Point(object):
         self.dx = .0 #pylint: disable=invalid-name
         self.acc = .0
         self.vel = .0
+        self.debug = debug
 
     def get_timestamp(self):
         """ Gets the timestamp of this point's time, seconds since 1970
@@ -66,7 +67,7 @@ class Point(object):
         Returns:
             float: Distance in km
         """
-        return distance(self.lat, self.lon, None, other.lat, other.lon, None)
+        return distance(self.lat, self.lon, None, other.lat, other.lon, None, debug=self.debug)
 
     def time_difference(self, previous):
         """ Calcultes the time difference against another point
@@ -105,7 +106,7 @@ class Point(object):
         return self
 
     @staticmethod
-    def from_gpx(gpx_track_point):
+    def from_gpx(gpx_track_point, debug = False):
         """ Creates a point from GPX representation
 
         Arguments:
@@ -116,7 +117,8 @@ class Point(object):
         return Point(
             lat=gpx_track_point.latitude,
             lon=gpx_track_point.longitude,
-            time=gpx_track_point.time
+            time=gpx_track_point.time,
+            debug=debug
         )
 
     def to_json(self):
@@ -137,7 +139,7 @@ class Point(object):
         }
 
     @staticmethod
-    def from_json(json):
+    def from_json(json, debug = False):
         """ Creates Point instance from JSON representation
 
         Args:
@@ -155,26 +157,27 @@ class Point(object):
         return Point(
             lat=json['lat'],
             lon=json['lon'],
-            time=isostr_to_datetime(json['time'])
+            time=isostr_to_datetime(json['time'], debug),
+            debug=debug
         )
 
 
 ONE_DEGREE = 1000. * 10000.8 / 90.
 EARTH_RADIUS = 6371 * 1000
 
-def to_rad(number):
+def to_rad(number, debug = False):
     """ Degrees to rads """
     return number / 180. * math.pi
 
-def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
+def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2, debug = False):
     """
     Haversine distance between two points, expressed in meters.
     Implemented from http://www.movable-type.co.uk/scripts/latlong.html
     """
-    d_lat = to_rad(latitude_1 - latitude_2)
-    d_lon = to_rad(longitude_1 - longitude_2)
-    lat1 = to_rad(latitude_1)
-    lat2 = to_rad(latitude_2)
+    d_lat = to_rad(latitude_1 - latitude_2, debug)
+    d_lon = to_rad(longitude_1 - longitude_2, debug)
+    lat1 = to_rad(latitude_1, debug)
+    lat2 = to_rad(latitude_2, debug)
 
     #pylint: disable=invalid-name
     a = math.sin(d_lat/2) * math.sin(d_lat/2) + \
@@ -186,12 +189,12 @@ def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
 
 #pylint: disable=too-many-arguments
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2,
-             haversine=None):
+             haversine=None, debug = False):
     """ Distance between two points """
 
     # If points too distant -- compute haversine distance:
     if haversine or (abs(latitude_1 - latitude_2) > .2 or abs(longitude_1 - longitude_2) > .2):
-        return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
+        return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2, debug)
 
     coef = math.cos(latitude_1 / 180. * math.pi)
     #pylint: disable=invalid-name

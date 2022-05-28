@@ -17,7 +17,8 @@ class Classifier(object):
         labels (:obj:`LabelEncoder`): Label encoder, includes all the labels
         feature_length (int): Length of each feature. <0 if it hasn't learned any
     """
-    def __init__(self, classifier=None):
+    def __init__(self, classifier=None, debug = False):
+        self.debug = debug
         if classifier:
             self.clf = classifier
         else:

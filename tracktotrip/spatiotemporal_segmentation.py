@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
-def temporal_segmentation(segments, min_time):
+def temporal_segmentation(segments, min_time, debug = False):
     """ Segments based on time distant points
 
     Args:
@@ -23,7 +23,7 @@ def temporal_segmentation(segments, min_time):
 
     return final_segments
 
-def correct_segmentation(segments, clusters, min_time):
+def correct_segmentation(segments, clusters, min_time, debug = False):
     """ Corrects the predicted segmentation
 
     This process prevents over segmentation
@@ -59,7 +59,7 @@ def correct_segmentation(segments, clusters, min_time):
 
     return result_segments
 
-def spatiotemporal_segmentation(points, eps, min_time):
+def spatiotemporal_segmentation(points, eps, min_time, debug = False):
     """ Splits a set of points into multiple sets of points based on
         spatio-temporal stays
 
@@ -93,7 +93,6 @@ def spatiotemporal_segmentation(points, eps, min_time):
 
     data = [point.gen3arr() for point in points]
     data = StandardScaler().fit_transform(data)
-    print('min_samples: %f' % min_samples)
     db_cluster = DBSCAN(eps=eps, min_samples=math.floor(min_samples)).fit(data)
     labels = db_cluster.labels_
 
@@ -103,10 +102,8 @@ def spatiotemporal_segmentation(points, eps, min_time):
     clusters = [[] for _ in range(n_clusters_+1)]
     current_segment = 0
 
-    print('clusters')
-    print(n_clusters_)
     if n_clusters_ == 1:
-        segments = temporal_segmentation([points], min_time)
+        segments = temporal_segmentation([points], min_time, debug)
         return [segment for segment in segments if len(segment) > 1]
 
     # split segments identified with dbscan
@@ -122,6 +119,11 @@ def spatiotemporal_segmentation(points, eps, min_time):
     if len(segments) == 0 or sum([len(s) for s in segments]):
         segments = [points]
 
-    segments = temporal_segmentation(segments, min_time)
+    segments = temporal_segmentation(segments, min_time, debug)
     # segments = temporal_segmentation(correct_segmentation(segments, clusters, min_time), min_time)
+    if debug:
+        print('min_samples: %f' % min_samples)
+        print('clusters')
+        print(n_clusters_)
+    
     return [segment for segment in segments if len(segment) > 1]

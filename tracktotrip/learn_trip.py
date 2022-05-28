@@ -4,7 +4,7 @@ Learns trips
 import numpy as np
 from .similarity import segment_similarity
 
-def complete_trip(canonical_trips, from_point, to_point, distance_thr):
+def complete_trip(canonical_trips, from_point, to_point, distance_thr, debug = False):
     """ Completes a trip based on set of canonical trips
 
     Args:
@@ -37,12 +37,15 @@ def complete_trip(canonical_trips, from_point, to_point, distance_thr):
         'possibilities': result,
         'weights': list(np.array(weights) / total_weights)
     }
-    print([len(r) for r in result])
-    print(weights)
+
+    if debug:
+        print([len(r) for r in result])
+        print(weights)
+
     return aa
 
 
-def learn_trip(current, current_id, canonical_trips, insert_canonical, update_canonical, eps, distance_thr):
+def learn_trip(current, current_id, canonical_trips, insert_canonical, update_canonical, eps, distance_thr, debug = False):
     """Learns a trip against of other canonical trips
 
     Args:
@@ -57,15 +60,16 @@ def learn_trip(current, current_id, canonical_trips, insert_canonical, update_ca
 
     if len(canonical_trips) == 0:
         current.simplify(eps, 0, 0, topology_only=True)
-        print(("inserting trip %d" % len(current.points)))
         insert_canonical(current, current_id)
+        if debug:
+            print(("inserting trip %d" % len(current.points)))
     else:
         canonical_trips_a = [
-            (trip_id, trip, segment_similarity(trip, current,  T=distance_thr))
+            (trip_id, trip, segment_similarity(trip, current,  T=distance_thr, debug=debug))
             for trip_id, trip in canonical_trips
             ]
         canonical_trips_b = [
-            (trip_id, trip, segment_similarity(current, trip, T=distance_thr))
+            (trip_id, trip, segment_similarity(current, trip, T=distance_thr, debug=debug))
             for trip_id, trip in canonical_trips
             ]
 
@@ -79,14 +83,16 @@ def learn_trip(current, current_id, canonical_trips, insert_canonical, update_ca
 
         trip_id, trip, (similarity, _) = canonical_trips[0]
 
-        print("similarity = %f" % similarity)
+        if debug: 
+            print("similarity = %f" % similarity)
 
         if similarity >= 0.7:
             # Same trip, fit all segments
             trip.merge_and_fit(current)#, diffs)
             trip.simplify(eps, 0, 0, topology_only=True)
             update_canonical(trip_id, trip, current_id)
-            print(("updating trip %d" % len(current.points)))
+            if debug:
+                print(("updating trip %d" % len(current.points)))
 
         # elif similarity >= 0.3:
         #     # Fit similar segments
@@ -103,5 +109,6 @@ def learn_trip(current, current_id, canonical_trips, insert_canonical, update_ca
         else:
             # Insert new canonical representation
             current.simplify(eps, 0, 0, topology_only=True)
-            print(("inserting trip %d" % len(current.points)))
             insert_canonical(current, current_id)
+            if debug:
+                print(("inserting trip %d" % len(current.points)))

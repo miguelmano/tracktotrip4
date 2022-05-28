@@ -20,21 +20,21 @@ FOURSQUARE_URL = 'https://api.foursquare.com/v2/venues/search?' \
 GG_CACHE = {}
 FS_CACHE = {}
 
-def from_cache(cache, point, threshold):
+def from_cache(cache, point, threshold, debug = False):
     for entry in list(cache.keys()):
         if point.distance(entry) < threshold:
             return cache[entry]
 
-def google_insert_cache(point, values):
+def google_insert_cache(point, values, debug = False):
     global GG_CACHE
     GG_CACHE[point] = values
 
-def foursquare_insert_cache(point, values):
+def foursquare_insert_cache(point, values, debug = False):
     global FS_CACHE
     FS_CACHE[point] = values
 
 
-def compute_centroid(points):
+def compute_centroid(points, debug = False):
     """ Computes the centroid of set of points
 
     Args:
@@ -46,7 +46,7 @@ def compute_centroid(points):
     lons = [p[0] for p in points]
     return Point(np.mean(lats), np.mean(lons), None)
 
-def update_location_centroid(point, cluster, max_distance, min_samples):
+def update_location_centroid(point, cluster, max_distance, min_samples, debug = False):
     """ Updates the centroid of a location cluster with another point
 
     Args:
@@ -62,7 +62,7 @@ def update_location_centroid(point, cluster, max_distance, min_samples):
     points = [p.gen2arr() for p in cluster]
 
     # Estimates the epsilon
-    eps = estimate_meters_to_deg(max_distance, precision=6)
+    eps = estimate_meters_to_deg(max_distance, precision=6, debug=debug)
 
     p_cluster = DBSCAN(eps=eps, min_samples=min_samples)
     p_cluster.fit(points)
@@ -79,7 +79,7 @@ def update_location_centroid(point, cluster, max_distance, min_samples):
     biggest_centroid = None
 
     for label, n_cluster in list(clusters.items()):
-        centroid = compute_centroid(n_cluster)
+        centroid = compute_centroid(n_cluster, debug)
         centroids.append(centroid)
 
         if label >= 0 and len(n_cluster) >= biggest_centroid_l:
@@ -87,11 +87,11 @@ def update_location_centroid(point, cluster, max_distance, min_samples):
             biggest_centroid = centroid
 
     if biggest_centroid is None:
-        biggest_centroid = compute_centroid(points)
+        biggest_centroid = compute_centroid(points, debug)
 
     return biggest_centroid, cluster
 
-def query_foursquare(point, max_distance, client_id, client_secret):
+def query_foursquare(point, max_distance, client_id, client_secret, debug = False):
     """ Queries Squarespace API for a location
 
     Args:
@@ -113,8 +113,8 @@ def query_foursquare(point, max_distance, client_id, client_secret):
     if not client_secret:
         return []
 
-    if from_cache(FS_CACHE, point, max_distance):
-        return from_cache(FS_CACHE, point, max_distance)
+    if from_cache(FS_CACHE, point, max_distance, debug):
+        return from_cache(FS_CACHE, point, max_distance, debug)
 
     url = FOURSQUARE_URL % (client_id, client_secret, point.lat, point.lon, max_distance)
     req = requests.get(url)
@@ -142,7 +142,7 @@ def query_foursquare(point, max_distance, client_id, client_secret):
     return result
 
 
-def query_google(point, max_distance, key):
+def query_google(point, max_distance, key, debug = False):
     """ Queries google maps API for a location
 
     Args:
@@ -160,8 +160,8 @@ def query_google(point, max_distance, key):
     if not key:
         return []
 
-    if from_cache(GG_CACHE, point, max_distance):
-        return from_cache(GG_CACHE, point, max_distance)
+    if from_cache(GG_CACHE, point, max_distance, debug):
+        return from_cache(GG_CACHE, point, max_distance, debug)
 
     req = requests.get(GOOGLE_PLACES_URL % (
         point.lat,
@@ -185,7 +185,7 @@ def query_google(point, max_distance, key):
             'suggestion_type': 'GOOGLE'
             })
 
-    google_insert_cache(point, final_results)
+    google_insert_cache(point, final_results, debug)
     return final_results
 
 def infer_location(
@@ -195,7 +195,8 @@ def infer_location(
         google_key,
         foursquare_client_id,
         foursquare_client_secret,
-        limit
+        limit, 
+        debug = False
     ):
     """ Infers the semantic location of a (point) place.
 
@@ -225,14 +226,15 @@ def infer_location(
     api_locations = []
     if len(locations) <= limit:
         if google_key:
-            google_locs = query_google(point, max_distance, google_key)
+            google_locs = query_google(point, max_distance, google_key, debug)
             api_locations.extend(google_locs)
         if foursquare_client_id and foursquare_client_secret:
             foursquare_locs = query_foursquare(
                 point,
                 max_distance,
                 foursquare_client_id,
-                foursquare_client_secret
+                foursquare_client_secret,
+                debug
             )
             api_locations.extend(foursquare_locs)
 
@@ -252,10 +254,11 @@ class Location(object):
         centroid (:obj:`Point`): Location position
         other (:obj:`list` of :obj:`dict`): Other possible locations. Includes the current label
     """
-    def __init__(self, label, position, other):
+    def __init__(self, label, position, other, debug = False):
         self.label = label
         self.centroid = position
         self.other = other
+        self.debug = debug
 
     def distance(self, position):
         """ Computes the distance between centroid and another point
@@ -280,10 +283,10 @@ class Location(object):
         }
 
     @staticmethod
-    def from_json(json):
+    def from_json(json, debug = False):
         """ Converts from a json representation
 
         Returns:
             :obj:`Location`
         """
-        return Location(json['label'], json['position'], [])
+        return Location(json['label'], json['position'], [], debug)
