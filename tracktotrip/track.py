@@ -40,6 +40,8 @@ class Track(object):
         self.name = name
         self.meta = []
         self.debug = debug
+
+        segments = filter(lambda s: len(list(s.points)) > 0, segments)
         
         self.segments = sorted(segments, key=lambda s: list(s.points)[0].time)
 
