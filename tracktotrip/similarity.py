@@ -3,7 +3,7 @@ Similarity functions
 """
 import math
 import numpy as np
-from rtreelib import RTree, Rect
+from rtree import index
 
 #pylint: disable=invalid-name
 
@@ -212,7 +212,7 @@ def bounding_box_from(points, i, i1, thr, debug = False):
     max_lat = max(pi.lat, pi1.lat)
     max_lon = max(pi.lon, pi1.lon)
 
-    return Rect(min_lat-thr, min_lon-thr, max_lat+thr, max_lon+thr)
+    return min_lat-thr, min_lon-thr, max_lat+thr, max_lon+thr
 
 def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD, debug = False):
     """Computes the similarity between two segments
@@ -226,9 +226,11 @@ def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD, debug = False):
     l_a = len(A.points)
     l_b = len(B.points)
 
-    idx = RTree()
+    idx = index.Index()
+    dex = 0
     for i in range(l_a-1):
-        idx.insert([A.points[i], A.points[i+1]], bounding_box_from(A.points, i, i+1, T, debug))
+        idx.insert(dex, bounding_box_from(A.points, i, i+1, T), obj=[A.points[i], A.points[i+1]])
+        dex = dex + 1
 
     prox_acc = []
 
@@ -236,21 +238,21 @@ def segment_similarity(A, B, T=CLOSE_DISTANCE_THRESHOLD, debug = False):
         ti = B.points[i].gen2arr()
         ti1 = B.points[i+1].gen2arr()
         bb = bounding_box_from(B.points, i, i+1, T, debug)
-        intersects = idx.query(bb)
+        intersects = idx.intersection(bb, objects=True)
         n_prox = []
         i_prox = 0
         a = 0
         for x in intersects:
             a = a + 1
-            pi = x.data[0].gen2arr()
-            pi1 = x.data[1].gen2arr()
+            pi = x.object[0].gen2arr()
+            pi1 = x.object[1].gen2arr()
             prox = line_similarity(ti, ti1, pi, pi1, T, debug)
             i_prox = i_prox + prox
             n_prox.append(prox)
 
         if a != 0:
-            prox_acc.append(i_prox / a)
-            # prox_acc.append(max(n_prox))
+            #prox_acc.append(i_prox / a)
+            prox_acc.append(max(n_prox))
         else:
             prox_acc.append(0)
 

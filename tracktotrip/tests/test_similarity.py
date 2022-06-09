@@ -75,6 +75,7 @@ class TestSimilarity(unittest.TestCase):
     def test_segment_similarity(self):
         """ Tests segment_similarity function
         """
+        
         a_pts = [
             [0.5, 0.5],
             [1, 1.5],
@@ -99,11 +100,6 @@ class TestSimilarity(unittest.TestCase):
         a_seg = Segment([Point(p[0], p[1], None) for p in a_pts])
         b_seg = Segment([Point(p[0], p[1], None) for p in b_pts])
         similarity, parts = segment_similarity(a_seg, b_seg)
-
-        print(f'similarity: {similarity}')
-        print(f'parts[3]: {parts[3]}')
-        print(f'parts[4]: {parts[4]}')
-        print(f'parts[5]: {parts[5]}')
 
         self.assertTrue(similarity > 0.35)
         self.assertTrue(parts[3] > parts[4])
