@@ -80,16 +80,16 @@ def build_classifier(dataset_folder, destination_folder, features=None, labels=N
     else:
         features, labels = process_folder(expanduser(dataset_folder))
 
-        print 'Saving features and labels'
+        print('Saving features and labels')
         pickle.dump(features, open('geolife.features', 'w'))
         pickle.dump(labels, open('geolife.labels', 'w'))
 
-    print 'Training classifier'
+    print('Training classifier')
     clf = Classifier()
     clf.learn(features, labels)
 
     classifier_path = join(expanduser(destination_folder), 'classifier.data')
-    print 'Saving classifier to %s' % classifier_path
+    print('Saving classifier to %s' % classifier_path)
     with open(classifier_path, 'w') as cls_file:
         clf.save_to_file(cls_file)
 
@@ -123,4 +123,4 @@ PARSER.add_argument(
 )
 ARGS = PARSER.parse_args()
 
-build_classifier(ARGS.datasetFolder, ARGS.outputFolder, features=ARGS.features, labels=ARGS.labels)
+build_classifier(ARGS.datasetFolder, ARGS.output, features=ARGS.features, labels=ARGS.labels)

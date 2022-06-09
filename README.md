@@ -63,6 +63,62 @@ A Segment holds the points, the transportation modes used, and the start and end
 A Point holds the position and time. Currently the library doesn't support elevation.
 
 
+## Command line tools
+
+In addition to the library, *TrackToTrip* offers three command line tools outside of the library to manipulate GPS tracks and to generate classifier.
+
+### tracktotrip_utils
+
+```
+usage: tracktotrip_utils.py [-h] [-a] [-s] [-o] [--eps EPS]
+                            [--mintime MINTIME] [--seed SEED]
+                            track [track ...] output_folder
+
+Manipulate tracks
+
+positional arguments:
+  track              track to process, must be a gpx file
+  output_folder
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -a, --anonymize    anonymizes tracks, by doing random rotations and
+                     translations
+  -s, --split        splits tracks so that each file contains a segment
+  -o, --organize     takes all tracks and split them, naming them according
+                     with their start date
+  --eps EPS          max distance to other points. Used when spliting.
+                     Defaults to 1.0
+  --mintime MINTIME  minimum time required to split, in seconds. Defaults to
+                     120
+  --seed SEED        random number generator seed. Used when anonymizing
+```
+
+### tracktotrip_geolife_dataset
+
+The **GeoLife Tracjectory dataset** can be found [here](https://www.microsoft.com/en-us/download/details.aspx?id=52367&from=http%3A%2F%2Fresearch.microsoft.com%2Fen-us%2Fdownloads%2Fb16d359d-d164-469e-9fd4-daa38f2b2e13%2F). The datasetFolder argument should point to the Data folder in the **GeoLife Trajectory dataset** folder.
+
+```
+usage: tracktotrip_geolife_dataset.py [-h] [-o outputFolder] [-d]
+                                      datasetFolder
+
+GeoLife Trajectory dataset transportation mode extractor. Extracts
+transportation mode from the dataset, into individual files, annotated with
+the following format: [transporation mode].[control].[nPoints].[original file
+name].gpx
+
+
+
+positional arguments:
+  datasetFolder         Path to the GeoLife dataset folder
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o outputFolder, --output outputFolder
+                        Path to processed dataset
+
+```
+
 ## License
 
 [MIT license](../master/LICENSE)

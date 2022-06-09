@@ -24,7 +24,7 @@ setup(
     scripts=[
         'scripts/tracktotrip_util',
         'scripts/tracktotrip_build_classifier',
-        'scripts/tracktotrip_geolife_dataset'
+    #     'scripts/tracktotrip_geolife_dataset'
     ],
-    install_requires=read('requirements.txt').split('\n')
+    # install_requires=read('requirements.txt').split('\n')
 )

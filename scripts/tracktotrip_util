@@ -64,7 +64,7 @@ def translate(track, trans):
         track (:obj:`Track`)
         trans (:obj:`Point`): Amout to translate
     """
-    print '\ttranslating by (%f, %f)' % (trans.lat, trans.lon)
+    print('\ttranslating by (%f, %f)' % (trans.lat, trans.lon))
     for segment in track.segments:
         for point in segment.points:
             point.lat += trans.lat
@@ -77,7 +77,7 @@ def rotate(track, degrees):
         track (:obj:`Track`)
         trans (float): Angle, in degrees
     """
-    print '\trotating by %f degrees' % degrees
+    print('\trotating by %f degrees' % degrees)
     theta = math.radians(degrees)
     for segment in track.segments:
         for point in segment.points:
@@ -93,7 +93,7 @@ def move_time(track, interval):
         track (:obj:`Track`)
         trans (:obj:`timedelta`): Time delta to shift
     """
-    print '\tmoving time by %s' % interval
+    print('\tmoving time by %s' % interval)
     for segment in track.segments:
         for point in segment.points:
             point.time = point.time + interval
@@ -109,7 +109,7 @@ def anonymize(src):
         seed(ARGS.seed)
 
     point_index = int(uniform(0, len(track.segments[0].points)))
-    print '\tselected point with index %d to use' % point_index
+    print('\tselected point with index %d to use' % point_index)
     # translate to the center
     start_point = track.segments[0].points[point_index]
     translate(track, Point(-start_point.lat, -start_point.lon, None))
@@ -120,7 +120,7 @@ def anonymize(src):
 
     dest_path = join(expanduser(ARGS.output_folder), 'anonymous_%s' % track.name)
     with open(dest_path, 'w') as fle:
-        print '\t! saving to "%s"' % dest_path
+        print('\t! saving to "%s"' % dest_path)
         fle.write(track.to_gpx())
 
 def split(src):
@@ -134,12 +134,12 @@ def split(src):
     track.segment(ARGS.eps, ARGS.mintime)
 
     for i, segment in enumerate(track.segments):
-        name = u'%s_%d.gpx' % (track.name.split('.')[0], i)
+        name = '%s_%d.gpx' % (track.name.split('.')[0], i)
         trk = Track(name, [segment])
 
         dest_path = join(expanduser(ARGS.output_folder), '%s' % trk.name)
         with open(dest_path, 'w') as fle:
-            print '\t! saving to "%s"' % dest_path
+            print('\t! saving to "%s"' % dest_path)
             fle.write(trk.to_gpx())
 
 def organize_by_days(srcs):
@@ -148,31 +148,31 @@ def organize_by_days(srcs):
     Args:
         srcs (list of str): Source paths of tracks
     """
-    print 'Organizing'
+    print('Organizing')
     days = {}
     for src in srcs:
-        print '\tinspecting %s' % src
+        print('\tinspecting %s' % src)
         track = Track.from_gpx(src)[0]
         track.compute_metrics()
         track.segment(ARGS.eps, ARGS.mintime)
 
         for segment in track.segments:
             day = segment.points[0].time.date().isoformat()
-            if day in days.keys():
+            if day in list(days.keys()):
                 days[day].append(segment)
             else:
                 days[day] = [segment]
 
-    print 'Sorting and saving by days'
-    for day, segments in days.iteritems():
+    print('Sorting and saving by days')
+    for day, segments in days.items():
         segments = sorted(segments, key=lambda segment: segment.points[0].time)
         for i, segment in enumerate(segments):
-            name = u'%s_%d.gpx' % (day, i)
+            name = '%s_%d.gpx' % (day, i)
             trk = Track(name, [segment])
 
             dest_path = join(expanduser(ARGS.output_folder), '%s' % trk.name)
             with open(dest_path, 'w') as fle:
-                print '\t! saving to "%s"' % dest_path
+                print('\t! saving to "%s"' % dest_path)
                 fle.write(trk.to_gpx())
 
 
@@ -181,15 +181,15 @@ def main():
     """
     if ARGS.action is ANONYMIZE:
         for src in ARGS.track:
-            print 'Anonymizing %s' % src
+            print('Anonymizing %s' % src)
             anonymize(src)
     elif ARGS.action is SPLIT:
         for src in ARGS.track:
-            print 'Spliting %s' % src
+            print('Spliting %s' % src)
             split(src)
     elif ARGS.action is ORGANIZE:
         organize_by_days(ARGS.track)
     else:
-        print 'Provide one of the following actions:\n  organize\n  anonymize\n  split\nUse the --help flag for more information'
+        print('Provide one of the following actions:\n  organize\n  anonymize\n  split\nUse the --help flag for more information')
 
 main()
