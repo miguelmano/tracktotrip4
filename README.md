@@ -119,6 +119,27 @@ optional arguments:
 
 ```
 
+### tracktotrip_build_classifier
+
+```
+usage: tracktotrip_build_classifier.py [-h] [-o outputFolder] [-f features]
+                                       [-l labels]
+                                       datasetFolder
+
+positional arguments:
+  datasetFolder         Path to the dataset, such as the GeoLife dataset
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o outputFolder, --output outputFolder
+                        Folder to store the classifier
+  -f features, --features features
+                        Path to features file to use
+  -l labels, --labels labels
+                        Path to features file to use
+
+```
+
 ## License
 
 [MIT license](../master/LICENSE)

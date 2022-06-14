@@ -418,7 +418,7 @@ class Track(object):
                 point.time = point.time + tz_dt
         return self
 
-    def to_life(self):
+    def to_life(self, use_trips=True):
         """Converts track to LIFE format
         """
         buff = "--%s\n" % self.segments[0].points[0].time.strftime("%Y_%m_%d")
@@ -490,7 +490,8 @@ class Track(object):
                     military_time(segment.points[0].time),
                     segment.location_from
                 )
-            buff = trip(buff, segment)
+            if use_trips:
+                buff = trip(buff, segment)
             if i is last:
                 buff = stay(
                     buff,
