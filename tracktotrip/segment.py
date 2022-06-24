@@ -312,8 +312,11 @@ class Segment(object):
             :obj:`dict`
         """
         points = [point.to_json() for point in self.points]
+
+
         return {
             'points': points,
+            'date': self.points[0].time.date(),
             'transportationModes': self.transportation_modes,
             'locationFrom': self.location_from.to_json() if self.location_from != None else None,
             'locationTo': self.location_to.to_json() if self.location_to != None else None
