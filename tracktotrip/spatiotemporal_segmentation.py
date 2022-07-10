@@ -89,7 +89,7 @@ def spatiotemporal_segmentation(points, eps, min_time, debug = False):
     dt_average = np.median([point.dt for point in points])
     if (dt_average == 0):
         dt_average = 1
-    min_samples = min_time / dt_average
+    min_samples = max(min_time / dt_average, 1)
 
     data = [point.gen3arr() for point in points]
     data = StandardScaler().fit_transform(data)
