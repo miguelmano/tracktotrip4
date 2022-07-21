@@ -138,6 +138,22 @@ class Point(object):
             'time': self.time.isoformat() if self.time is not None else None
         }
 
+    def to_gpx(self):
+        """ Converts point to a GPX format string
+
+        Returns:
+            string: xml tag <trkpt> that defines a point in the gpx format
+        """
+
+        return ''.join([
+            "\t\t\t",
+            '<trkpt lat="' + str(self.lat) + '" lon="' + str(self.lon) + '">\n',
+            "\t\t\t\t",
+            '<time>' + str(self.time) + '</time>\n',
+            "\t\t\t",
+            '</trkpt>'
+        ]) + '\n'
+
     @staticmethod
     def from_json(json, debug = False):
         """ Creates Point instance from JSON representation

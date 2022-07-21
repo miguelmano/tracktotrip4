@@ -239,7 +239,9 @@ class Segment(object):
         Returns:
             :obj:`Segment`: self
         """
+        
         self.points = sort_segment_points(self.points, segment.points, self.debug)
+
         return self
 
     def closest_point_to(self, point, thr=20.0):
@@ -323,6 +325,24 @@ class Segment(object):
             'locationFrom': self.location_from.to_json() if self.location_from != None else None,
             'locationTo': self.location_to.to_json() if self.location_to != None else None
         }
+
+    def to_gpx(self):
+        """ Converts segment to a GPX format string
+
+        Returns:
+            string: xml tag <trkseg> that defines a segment in the gpx format
+        """
+
+        if (len(self.points) == 0):
+            return ''
+
+        points = ''.join([point.to_gpx() for point in self.points])
+
+        return ''.join([
+            '\t\t' + '<trkseg>\n',
+            points,
+            '\t\t' + '</trkseg>\n',
+        ]) + '\n'
 
     @staticmethod
     def from_gpx(gpx_segment, debug = False):

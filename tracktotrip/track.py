@@ -510,6 +510,22 @@ class Track(object):
 
         return buff
 
+    def to_gpx(self):
+        if (len(self.segments) == 0):
+            return ''
+
+        segments = ''.join([segment.to_gpx() for segment in self.segments])
+        
+        return ''.join([
+            '<?xml version="1.0" encoding="UTF-8"?>\n',
+            f'<!--{self.name}-->\n'
+            '<gpx xmlns="http://www.topografix.com/GPX/1/1">\n',
+            '\t' + '<trk>\n', 
+            segments,  
+            '\t' + '</trk>\n',
+            '</gpx>\n'
+        ])
+
     @staticmethod
     def from_gpx(file_path, debug = False):
         """ Creates a Track from a GPX file.
