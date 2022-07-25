@@ -2,6 +2,7 @@ from tracktotrip import learn_trip, Track, Segment, Point
 from datetime import datetime, timedelta
 import unittest
 
+#TODO remake tests (these don't work)
 class TestLearnTrip(unittest.TestCase):
     def setUp(self):
         Aps = [[0.5, 0.5], [1, 1.5], [2, 2.5], [3.5, 3.5], [5.2, 4.5], [7.5, 6.5], [7.9, 8]]

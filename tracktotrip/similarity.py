@@ -1,7 +1,9 @@
 """
 Similarity functions
 """
+import json
 import math
+
 import numpy as np
 from rtree import index
 
@@ -283,6 +285,4 @@ def sort_segment_points(Aps, Bps, debug = False):
                     break
 
         mid.append(Aps[i+1])
-    for m in range(j, len(Bps)):
-        mid.append(Bps[m])
     return mid
