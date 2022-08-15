@@ -43,9 +43,11 @@ def isostr_to_datetime(dt_str, debug = False):
     """
     if len(dt_str) <= 20:
         return datetime.datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%SZ")
-    else:
+    elif '.' in dt_str:
         dt_str = dt_str.split(".")
         return isostr_to_datetime("%sZ" % dt_str[0], debug)
+    else:
+        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S+00:00")
 
 def pairwise(iterable, debug = False):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
