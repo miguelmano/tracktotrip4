@@ -194,7 +194,9 @@ def infer_location(
         point,
         location_query,
         max_distance,
+        use_google,
         google_key,
+        use_foursquare,    
         foursquare_client_id,
         foursquare_client_secret,
         limit, 
@@ -227,10 +229,10 @@ def infer_location(
 
     api_locations = []
     if len(locations) <= limit:
-        if google_key:
+        if use_google and google_key:
             google_locs = query_google(point, max_distance, google_key, debug)
             api_locations.extend(google_locs)
-        if foursquare_client_id and foursquare_client_secret:
+        if use_foursquare and foursquare_client_id and foursquare_client_secret:
             foursquare_locs = query_foursquare(
                 point,
                 max_distance,

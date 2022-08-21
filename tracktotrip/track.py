@@ -208,12 +208,13 @@ class Track(object):
             ]
         return self
 
-    # TODO
     def infer_location(
             self,
             location_query,
             max_distance,
+            use_google,
             google_key,
+            use_foursquare,
             foursquare_client_id,
             foursquare_client_secret,
             limit
@@ -227,7 +228,9 @@ class Track(object):
             segment.infer_location(
                 location_query,
                 max_distance,
+                use_google,
                 google_key,
+                use_foursquare,
                 foursquare_client_id,
                 foursquare_client_secret,
                 limit
