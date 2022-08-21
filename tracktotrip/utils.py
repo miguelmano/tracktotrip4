@@ -41,13 +41,15 @@ def isostr_to_datetime(dt_str, debug = False):
     Returns:
         :obj:`datetime.datetime`
     """
-    if len(dt_str) <= 20:
+    if len(dt_str) <= 20 and 'Z' in dt_str:
         return datetime.datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%SZ")
     elif '.' in dt_str:
         dt_str = dt_str.split(".")
         return isostr_to_datetime("%sZ" % dt_str[0], debug)
-    else:
+    elif '+' in dt_str:
         return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S+00:00")
+    else:
+        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
 
 def pairwise(iterable, debug = False):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."

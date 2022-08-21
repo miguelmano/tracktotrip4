@@ -1,6 +1,8 @@
 """
 Location class and methods
 """
+from datetime import datetime
+import json
 from math import sqrt
 import requests
 import numpy as np
@@ -13,9 +15,8 @@ GOOGLE_PLACES_URL = 'https://maps.googleapis.com/maps/api/place/nearbysearch' \
     '/json?location=%s,%s&radius=%s&key=%s'
 
 FOURSQUARE_URL = 'https://api.foursquare.com/v2/venues/search?' \
-        'v=20140806&m=foursquare&' \
         'client_id=%s&client_secret=%s&' \
-        'll=%f,%f&radius=%f'
+        'll=%f,%f&radius=%f&v=%s'
 
 GG_CACHE = {}
 FS_CACHE = {}
@@ -116,7 +117,7 @@ def query_foursquare(point, max_distance, client_id, client_secret, debug = Fals
     if from_cache(FS_CACHE, point, max_distance, debug):
         return from_cache(FS_CACHE, point, max_distance, debug)
 
-    url = FOURSQUARE_URL % (client_id, client_secret, point.lat, point.lon, max_distance)
+    url = FOURSQUARE_URL % (client_id, client_secret, point.lat, point.lon, max_distance, datetime.now().strftime('%Y%m%d'))
     req = requests.get(url)
 
     if req.status_code != 200:
@@ -172,6 +173,7 @@ def query_google(point, max_distance, key, debug = False):
 
     if req.status_code != 200:
         return []
+    
     response = req.json()
     results = response['results']
     # l = len(results)
@@ -237,14 +239,16 @@ def infer_location(
                 debug
             )
             api_locations.extend(foursquare_locs)
-
-    if len(locations) > 0 or len(api_locations) > 0:
-        locations = sorted(locations, key=lambda d: d['distance'])
+    
+    if len(api_locations) > 0:
         api_locations = sorted(api_locations, key=lambda d: d['distance'])
+
+    if len(locations) > 0:
+        locations = sorted(locations, key=lambda d: d['distance'])
         locations = (locations + api_locations)[:limit]
         return Location(locations[0]['label'], point, locations)
     else:
-        return Location('#?', point, [])
+        return Location('#?', point, api_locations)
 
 class Location(object):
     """ Location representation
