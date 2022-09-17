@@ -1,5 +1,5 @@
 # TrackToTrip3
-*TrackToTrip3* is a library to process GPS tracks.
+*TrackToTrip3* is a Python 3 adaptation of the [TrackToTrip](https://github.com/ruipgil/TrackToTrip) library used to process GPS tracks.
 
 The main goals are to transform a (gpx) **track into a trip**.
 
@@ -116,27 +116,6 @@ optional arguments:
   -h, --help            show this help message and exit
   -o outputFolder, --output outputFolder
                         Path to processed dataset
-
-```
-
-### tracktotrip_build_classifier
-
-```
-usage: tracktotrip_build_classifier.py [-h] [-o outputFolder] [-f features]
-                                       [-l labels]
-                                       datasetFolder
-
-positional arguments:
-  datasetFolder         Path to the dataset, such as the GeoLife dataset
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -o outputFolder, --output outputFolder
-                        Folder to store the classifier
-  -f features, --features features
-                        Path to features file to use
-  -l labels, --labels labels
-                        Path to features file to use
 
 ```
 
