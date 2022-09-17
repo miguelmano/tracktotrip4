@@ -1,5 +1,5 @@
-# TrackToTrip
-*TrackToTrip* is a library to process GPS tracks.
+# TrackToTrip3
+*TrackToTrip3* is a library to process GPS tracks.
 
 The main goals are to transform a (gpx) **track into a trip**.
 
@@ -12,38 +12,38 @@ The main goals are to transform a (gpx) **track into a trip**.
 
 ## Installing
 
-You can install TrackToTrip by running the following command:
+You can install TrackToTrip3 by running the following command:
 
 ```
  $ python setup.py install
 ```
 
-**NOTE:** TrackToTrip requires Microsoft Visual C++ 14.0. It can be found using the [Build Tools for Visual Studio 2022](https://visualstudio.microsoft.com/downloads/?q=build+tools)
+**NOTE:** TrackToTrip3 requires Microsoft Visual C++ 14.0. It can be found using the [Build Tools for Visual Studio 2022](https://visualstudio.microsoft.com/downloads/?q=build+tools)
 
 
 **Python 3.x** is required.
 
 ## Overview
 
-The starting points are the [Track](../master/tracktotrip/track.py), [Segment](../master/tracktotrip/segment.py) and [Point](../master/tracktotrip/point.py) classes.
+The starting points are the [Track](../master/tracktotrip3/track.py), [Segment](../master/tracktotrip3/segment.py) and [Point](../master/tracktotrip3/point.py) classes.
 
-### [Track](../master/tracktotrip/track.py)
+### [Track](../master/tracktotrip3/track.py)
 
 Can be loaded from a GPX file:
 
 ```python
-from tracktotrip import Track, Segment, Point
+from tracktotrip3 import Track, Segment, Point
 
 track = Track.from_gpx('file_to_track.gpx')
 ```
 
 A track can be transformed into a trip with the method ` to_trip `. Transforming a track into a trip executes the following steps:
 
-1. Smooths the segments, using the [kalman filter](../master/tracktotrip/smooth.py)
+1. Smooths the segments, using the [kalman filter](../master/tracktotrip3/smooth.py)
 
-2. Spatiotemporal segmentation for each segment, using the [DBSCAN algorithm](../master/tracktotrip/spatiotemporal_segmentation.py) to find spatiotemporal clusters
+2. Spatiotemporal segmentation for each segment, using the [DBSCAN algorithm](../master/tracktotrip3/spatiotemporal_segmentation.py) to find spatiotemporal clusters
 
-3. Compresses every segment, using [spatiotemporal-aware compression algorithm](../master/tracktotrip/compression.py)
+3. Compresses every segment, using [spatiotemporal-aware compression algorithm](../master/tracktotrip3/compression.py)
 
 A track is composed by ` Segment `s, and each segment by ` Point `s.
 
@@ -54,18 +54,18 @@ with open('file.gpx', 'w') as f:
   f.write(track.to_gpx())
 ```
 
-### [Segment](../master/tracktotrip/segment.py)
+### [Segment](../master/tracktotrip3/segment.py)
 
 A Segment holds the points, the transportation modes used, and the start and end semantic locations.
 
-### [Point](../master/tracktotrip/point.py)
+### [Point](../master/tracktotrip3/point.py)
 
 A Point holds the position and time. Currently the library doesn't support elevation.
 
 
 ## Command line tools
 
-In addition to the library, *TrackToTrip* offers three command line tools outside of the library to manipulate GPS tracks and to generate classifier.
+In addition to the library, *TrackToTrip3* offers three command line tools outside of the library to manipulate GPS tracks and to generate classifier.
 
 ### tracktotrip_utils
 

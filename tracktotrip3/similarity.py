@@ -1,7 +1,7 @@
 """
 Similarity functions
 """
-import json
+
 import math
 
 import numpy as np

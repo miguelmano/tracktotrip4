@@ -2,10 +2,7 @@
 Point segment module
 """
 from copy import deepcopy
-import sys
-import traceback
 
-import numpy as np
 from rtreelib import Rect
 
 from .point import Point

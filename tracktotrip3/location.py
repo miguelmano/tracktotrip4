@@ -2,8 +2,6 @@
 Location class and methods
 """
 from datetime import datetime
-import json
-from math import sqrt
 import requests
 import numpy as np
 from sklearn.cluster import DBSCAN
