@@ -215,8 +215,7 @@ class Track(object):
             use_google,
             google_key,
             use_foursquare,
-            foursquare_client_id,
-            foursquare_client_secret,
+            foursquare_key,
             limit
         ):
         """In-place location inferring of segments
@@ -224,6 +223,7 @@ class Track(object):
         Returns:
             This track
         """
+        
         self.segments = [
             segment.infer_location(
                 location_query,
@@ -231,8 +231,7 @@ class Track(object):
                 use_google,
                 google_key,
                 use_foursquare,
-                foursquare_client_id,
-                foursquare_client_secret,
+                foursquare_key,
                 limit
             )
             for segment in self.segments

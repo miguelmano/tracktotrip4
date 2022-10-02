@@ -181,8 +181,7 @@ class Segment(object):
             use_google,
             google_key,
             use_foursquare,
-            foursquare_client_id,
-            foursquare_client_secret,
+            foursquare_key,
             limit
         ):
         """In-place location inferring
@@ -201,8 +200,7 @@ class Segment(object):
             use_google,
             google_key,
             use_foursquare,
-            foursquare_client_id,
-            foursquare_client_secret,
+            foursquare_key,
             limit,
             self.debug
         )
@@ -213,8 +211,7 @@ class Segment(object):
             use_google,
             google_key,
             use_foursquare,
-            foursquare_client_id,
-            foursquare_client_secret,
+            foursquare_key,
             limit,
             self.debug
         )

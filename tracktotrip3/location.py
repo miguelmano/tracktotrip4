@@ -12,9 +12,8 @@ from .utils import estimate_meters_to_deg
 GOOGLE_PLACES_URL = 'https://maps.googleapis.com/maps/api/place/nearbysearch' \
     '/json?location=%s,%s&radius=%s&key=%s'
 
-FOURSQUARE_URL = 'https://api.foursquare.com/v2/venues/search?' \
-        'client_id=%s&client_secret=%s&' \
-        'll=%f,%f&radius=%f&v=%s'
+FOURSQUARE_URL = 'https://api.foursquare.com/v3/places/search?' \
+        'll=%f,%f&radius=%d'
 
 GG_CACHE = {}
 FS_CACHE = {}
@@ -90,14 +89,13 @@ def update_location_centroid(point, cluster, max_distance, min_samples, debug = 
 
     return biggest_centroid, cluster
 
-def query_foursquare(point, max_distance, client_id, client_secret, debug = False):
+def query_foursquare(point, max_distance, key, debug = False):
     """ Queries Squarespace API for a location
 
     Args:
         point (:obj:`Point`): Point location to query
-        max_distance (float): Search radius, in meters
-        client_id (str): Valid Foursquare client id
-        client_secret (str): Valid Foursquare client secret
+        max_distance (int): Search radius, in meters
+        key (str): Valid Foursquare API key
     Returns:
         :obj:`list` of :obj:`dict`: List of locations with the following format:
             {
@@ -107,28 +105,33 @@ def query_foursquare(point, max_distance, client_id, client_secret, debug = Fals
                 'suggestion_type': 'FOURSQUARE'
             }
     """
-    if not client_id:
-        return []
-    if not client_secret:
+    
+    if not key:
         return []
 
     if from_cache(FS_CACHE, point, max_distance, debug):
         return from_cache(FS_CACHE, point, max_distance, debug)
 
-    url = FOURSQUARE_URL % (client_id, client_secret, point.lat, point.lon, max_distance, datetime.now().strftime('%Y%m%d'))
-    req = requests.get(url)
+    headers = {
+        'accept': 'application/json',
+        'Authorization': key
+    }
+
+    url = FOURSQUARE_URL % (point.lat, point.lon, max_distance)
+    req = requests.get(url, headers=headers)
 
     if req.status_code != 200:
         return []
     response = req.json()
 
-    result = []
-    venues = response['response']['venues']
 
-    for venue in venues:
-        name = venue['name']
-        distance = venue['location']['distance']
-        categories = [c['shortName'] for c in venue['categories']]
+    result = []
+    results = response['results']
+
+    for res in results:
+        name = res['name']
+        distance = res['distance']
+        categories = [c['name'] for c in res['categories']]
         result.append({
             'label': name,
             'distance': distance,
@@ -194,9 +197,8 @@ def infer_location(
         max_distance,
         use_google,
         google_key,
-        use_foursquare,    
-        foursquare_client_id,
-        foursquare_client_secret,
+        use_foursquare,
+        foursquare_key,
         limit, 
         debug = False
     ):
@@ -207,8 +209,7 @@ def infer_location(
         location_query: Function with signature, (:obj:`Point`, int) -> (str, :obj:`Point`, ...)
         max_distance (float): Max distance to a position, in meters
         google_key (str): Valid google maps api key
-        foursquare_client_id (str): Valid Foursquare client id
-        foursquare_client_secret (str): Valid Foursquare client secret
+        foursquare_key (str): Valid Foursquare API key
         limit (int): Results limit
     Returns:
         :obj:`Location`: with top match, and alternatives
@@ -230,12 +231,11 @@ def infer_location(
         if use_google and google_key:
             google_locs = query_google(point, max_distance, google_key, debug)
             api_locations.extend(google_locs)
-        if use_foursquare and foursquare_client_id and foursquare_client_secret:
+        if use_foursquare and foursquare_key:
             foursquare_locs = query_foursquare(
                 point,
                 max_distance,
-                foursquare_client_id,
-                foursquare_client_secret,
+                foursquare_key,
                 debug
             )
             api_locations.extend(foursquare_locs)
