@@ -3,6 +3,9 @@ Setup script
 """
 import os
 from distutils.core import setup
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 def read(filename):
     """ Reads file
@@ -19,6 +22,8 @@ setup(
     packages=['tracktotrip3'],
     version=VERSION,
     description='Track processing library for Python 3',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Daniel Serafim, Rui Gil',
     author_email='dserafim1999@gmail.com',
     url='https://github.com/dserafim1999/tracktotrip3',
