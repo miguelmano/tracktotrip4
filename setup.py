@@ -10,7 +10,7 @@ def read(filename):
     with open(os.path.join(os.path.dirname(__file__), filename), 'r', encoding='utf16') as f:
         return f.read().splitlines()
 
-VERSION = '1.0'
+VERSION = '0.1.1'
 
 
 
@@ -22,7 +22,7 @@ setup(
     author='Daniel Serafim, Rui Gil',
     author_email='dserafim1999@gmail.com',
     url='https://github.com/dserafim1999/tracktotrip3',
-    #download_url='https://github.com/ruipgil/tracktotrip/releases/tag/%s' % VERSION,
+    download_url='https://github.com/dserafim1999/tracktotrip3/releases/tag/%s' % VERSION,
     keywords=['track', 'trip', 'GPS', 'GPX'],
     classifiers=[],
     scripts=[
